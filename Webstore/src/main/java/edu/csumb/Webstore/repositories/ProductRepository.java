@@ -15,7 +15,7 @@ import edu.csumb.Webstore.model.Product;
 public interface ProductRepository extends MongoRepository<Product,String>
 {
     //Will largely stay empty. You can add extra database features here if you want!
-    @Query (value = "{'id':?0")
+    @Query (value = "{'product.id':?0")
     Product findByRepoId(String id);
 
     @Query (value = "{'powers.powers':?0}")
