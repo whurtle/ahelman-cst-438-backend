@@ -5,17 +5,17 @@
 
 package edu.csumb.Webstore.controller;
 
-import java.util.Optional;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.ApiOperation;
+
 import edu.csumb.Webstore.model.Product;
-import edu.csumb.Webstore.service.ProductService;
+import edu.csumb.Webstore.repositories.ProductRepository;
 
 @RestController
 public class ProductController
@@ -23,7 +23,7 @@ public class ProductController
 
     //This is autowiring(Telling spring to just connect to the dang service automatically) for us.
     @Autowired
-    ProductService productService;
+    ProductRepository productRepository;
 
     //REQUESTMAPPING
     //We are setting a request mapping with request type GET. You can change these to POST or anything else you want!
@@ -35,14 +35,31 @@ public class ProductController
     //EXAMPLE()
     //We are returning an Iterable, which means a List! Use Iterable<Datatype> when you want to return many.
     //For example Iterable<Product>
-    @RequestMapping(method = RequestMethod.GET, value = "/products/example")
-    @ApiOperation(value = "An example of a api function to get you started." )
-    public Iterable<String> example()
+
+    @GetMapping("/products/getall")
+    public List<Product> getAllProducts()
     {
         //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
         //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
         //So we are calling the service function we want.
-        return productService.example();
+        List<Product> products = productRepository.findAll();
+        return products;
+    }
+  
+    @PostMapping("/products/add")
+    public Product addProduct(@RequestBody Product product)
+    {
+        //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
+        //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
+        //So we are calling the service function we want.
+        return productRepository.save(product);
+    }
+
+    @GetMapping("/products/get/{id}")
+    public Product getProductById(@PathVariable String id)
+    {
+        Product product = productRepository.findByRepoId(id);
+        return product;
     }
 
     //NETWORKING QUICK REFERENCE

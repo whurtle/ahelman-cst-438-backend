@@ -3,18 +3,25 @@
 //or else you will have many errors.
 package edu.csumb.Webstore.model;
 
+import org.springframework.data.annotation.Id;
+
+import io.swagger.annotations.ApiModelProperty;
+
+
 public class Product
 {
-    String name;
+    @Id
+    @ApiModelProperty(required = false, hidden = true)
     String id;
+
+    String name;
     String description;
     String imageURL;
     Double price;
     Integer stock;
     
-    public Product(String name, String id, String description, String imageURL, Double price, Integer stock){
+    public Product(String name, String description, String imageURL, Double price, Integer stock){
         this.name = name;
-        this.id = id;
         this.description = description;
         this.imageURL = imageURL;
         this.price = price;
@@ -37,12 +44,6 @@ public class Product
      */
     public String getId() {
         return id;
-    }
-    /**
-     * @param id the id to set
-     */
-    public void setId(String id) {
-        this.id = id;
     }
     /**
      * @param description the description to set
