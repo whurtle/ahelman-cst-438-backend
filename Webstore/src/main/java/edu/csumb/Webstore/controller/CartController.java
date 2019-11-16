@@ -57,7 +57,7 @@ public class CartController
         }
     }
     @ApiOperation(value = "Clears a users cart")
-    @PostMapping("/checkout")
+    @PostMapping("/cart/checkout")
     public Cart checkout(@RequestParam String userName)
     {
         Cart cart = cartRepository.findByUserName(userName);

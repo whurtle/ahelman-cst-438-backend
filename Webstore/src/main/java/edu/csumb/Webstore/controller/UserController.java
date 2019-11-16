@@ -35,7 +35,7 @@ public class UserController
     //We are returning an Iterable, which means a List! Use Iterable<Datatype> when you want to return many.
     //For example Iterable<Product>
     @ApiOperation(value = "Adds a new user to the database")
-    @PostMapping("/addUser")
+    @PostMapping("/user/add")
     public User addUser(@RequestBody User user)
     {
         //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
@@ -44,7 +44,7 @@ public class UserController
         return userRepository.save(user);
     }
     @ApiOperation(value = "Authenticates username and password")
-    @GetMapping("/login")
+    @GetMapping("/user/login")
     public Boolean correctLogin(@RequestParam String userName, @RequestParam String password)
     {
         try{
