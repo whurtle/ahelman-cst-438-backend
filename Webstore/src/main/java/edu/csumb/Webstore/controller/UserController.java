@@ -5,26 +5,24 @@
 
 package edu.csumb.Webstore.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.csumb.Webstore.model.Product;
-import edu.csumb.Webstore.repositories.ProductRepository;
+import edu.csumb.Webstore.model.User;
+import edu.csumb.Webstore.repositories.UserRepository;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-public class ProductController
+public class UserController
 {
 
     //This is autowiring(Telling spring to just connect to the dang service automatically) for us.
     @Autowired
-    ProductRepository productRepository;
+    UserRepository userRepository;
 
     //REQUESTMAPPING
     //We are setting a request mapping with request type GET. You can change these to POST or anything else you want!
@@ -36,31 +34,29 @@ public class ProductController
     //EXAMPLE()
     //We are returning an Iterable, which means a List! Use Iterable<Datatype> when you want to return many.
     //For example Iterable<Product>
-    @ApiOperation(value = "Gets all known products")
-    @GetMapping("/products/getall")
-    public List<Product> getAllProducts()
+    @ApiOperation(value = "Adds a new user to the database")
+    @PostMapping("/addUser")
+    public User addUser(@RequestBody User user)
     {
         //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
         //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
         //So we are calling the service function we want.
-        List<Product> products = productRepository.findAll();
-        return products;
+        return userRepository.save(user);
     }
-    @ApiOperation(value = "Adds a new product to the database")
-    @PostMapping("/products/add")
-    public Product addProduct(@RequestBody Product product)
+    @ApiOperation(value = "Authenticates username and password")
+    @GetMapping("/login")
+    public Boolean correctLogin(@RequestParam String userName, @RequestParam String password)
     {
-        //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
-        //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
-        //So we are calling the service function we want.
-        return productRepository.save(product);
-    }
-    @ApiOperation(value = "Gets a product by its id")
-    @GetMapping("/products/get/{id}")
-    public Product getProductById(@PathVariable String id)
-    {
-        Product product = productRepository.findByRepoId(id);
-        return product;
+        try{
+            User user = userRepository.findByUsername(userName);
+            if(user.getPassword().equals(password)){
+                return true;
+            } else {
+                return false;
+            }
+        } catch(Exception e){
+            return false;
+        }
     }
 
     //NETWORKING QUICK REFERENCE

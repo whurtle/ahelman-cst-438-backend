@@ -5,26 +5,24 @@
 
 package edu.csumb.Webstore.controller;
 
-import java.util.List;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.csumb.Webstore.model.Product;
-import edu.csumb.Webstore.repositories.ProductRepository;
+import edu.csumb.Webstore.model.Cart;
+import edu.csumb.Webstore.repositories.CartRepository;
 import io.swagger.annotations.ApiOperation;
-
 @RestController
-public class ProductController
+public class CartController
 {
 
     //This is autowiring(Telling spring to just connect to the dang service automatically) for us.
     @Autowired
-    ProductRepository productRepository;
+    CartRepository cartRepository;
 
     //REQUESTMAPPING
     //We are setting a request mapping with request type GET. You can change these to POST or anything else you want!
@@ -36,32 +34,50 @@ public class ProductController
     //EXAMPLE()
     //We are returning an Iterable, which means a List! Use Iterable<Datatype> when you want to return many.
     //For example Iterable<Product>
-    @ApiOperation(value = "Gets all known products")
-    @GetMapping("/products/getall")
-    public List<Product> getAllProducts()
+    @ApiOperation(value = "Adds products and their quantity to the cart")
+    @PostMapping("/cart/add")
+    public Cart addCart(@RequestBody Cart cart)
     {
-        //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
-        //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
-        //So we are calling the service function we want.
-        List<Product> products = productRepository.findAll();
-        return products;
+        Cart curr = cartRepository.findByUserName(cart.getUserName());
+        if(curr != null){
+            HashMap<String,Integer> currProducts = curr.getProducts();
+            HashMap<String,Integer> newProducts = cart.getProducts();
+            for(String product : newProducts.keySet()){
+                if(currProducts.containsKey(product)){
+                    Integer currVal = currProducts.get(product);
+                    currVal += cart.getProducts().get(product);
+                    currProducts.put(product, currVal);
+                } else {
+                    currProducts.put(product, newProducts.get(product));
+                }
+            }
+            return curr;
+        } else {
+            return cartRepository.save(cart);
+        }
     }
-    @ApiOperation(value = "Adds a new product to the database")
-    @PostMapping("/products/add")
-    public Product addProduct(@RequestBody Product product)
+    @ApiOperation(value = "Clears a users cart")
+    @PostMapping("/checkout")
+    public Cart checkout(@RequestParam String userName)
     {
-        //ALL LOGIC SHOULD BE IN THE SERVICE. EVEN IF IT'S JUST ONE LINE!
-        //IF YOU HAVE ANY LOGIC IN THE CONTROLLER IT IS BAD!
-        //So we are calling the service function we want.
-        return productRepository.save(product);
+        Cart cart = cartRepository.findByUserName(userName);
+        cart.getProducts().clear();
+        return cart;
     }
-    @ApiOperation(value = "Gets a product by its id")
-    @GetMapping("/products/get/{id}")
-    public Product getProductById(@PathVariable String id)
+    @ApiOperation(value = "Adjusts the quantity of a certain product")
+    @PostMapping("/cart/quantity")
+    public Cart changeQuant(@RequestParam String userName, @RequestParam String productId, @RequestParam Integer count)
     {
-        Product product = productRepository.findByRepoId(id);
-        return product;
+        Cart cart = cartRepository.findByUserName(userName);
+        if(count == 0){
+            cart.getProducts().remove(productId);
+        } else {
+            cart.getProducts().put(productId, count);
+        }
+        return cart;
     }
+
+
 
     //NETWORKING QUICK REFERENCE
     //IF @RequestMapping(method = RequestMethod.GET, value = "/example/{var}")
